@@ -10,7 +10,7 @@ STEPS:
 1) Load point cloud into CloudCompare; use 'Cloth Simulation Filter' plugin (settings: filter Scene: Steep slope, cloth resolution: 1.0). Save ground result as .las file.
 
 2) Open 'filter_termites_CC.py' Go to the section 'STEP 2'. Change the 'input_file_CSF' to the filtered point cloud in .las format (result of the cloth simulation filter (CloudCompare)). Run section 2.
-3) CALCULATE NORMALS in CloudCompare (quadric, radius = .75); convert to DIP DIRECTION/DIP DEGREE. Use quadric. Save the point cloud as GF_[name].txt                                                      
+3) CALCULATE NORMALS in CloudCompare (quadric, radius = .75); convert to DIP DIRECTION/DIP DEGREE. Save the point cloud as GF_[name].txt                                                      
 4) Run section 'STEP 4' in python script 'filter_termites_CC.py': filter based on dip direction/dip degree
 
 5) CALCULATE NORMALS in Cloudcompare (quadric, radius = .30) of the 'csf_to_calculate_normals.txt' file; convert to DIP DIRECTION/DIP DEG. Save it as GF_csf_to_calculate_normals.txt
