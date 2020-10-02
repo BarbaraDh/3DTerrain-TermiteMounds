@@ -1,6 +1,7 @@
 # 3DTerrain-TermiteMounds
 
-Filters termite mounds from UAV las data.
+Geometric approach to filters termite mounds from Unmanned Aerial Vehicle - LiDAR data.
+
 main script: filter_termites_CC.py
 
 PACKAGES NEED TO BE INSTALLED:
