@@ -18,7 +18,9 @@ filter Scene: Steep slope, cloth resolution: 1.0). Save as .las
 
 
 Extra information
+
 step 2: file 'keep_bottom_points'. Is possible to run from the command line. Based on the X Y values, the nearest neighbours (default: 30) are identified for each point. Only the point with the lowest Z value is kept.
+
 step 4: file 'mounddetection1'. 
     1) data is filtered based on dip degree (7-86 degrees)
     2) data is filtered: points with less than 50 points within a 2 m radius are discarded
