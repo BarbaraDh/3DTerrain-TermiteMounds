@@ -19,52 +19,90 @@ STEPS:
     
     https://www.cloudcompare.org/doc/wiki/index.php?title=CSF_(plugin)
     
+    
 2) python: keep lowest points.
+
     INPUTS: input_file_CSF: filtered point cloud in .las format (result of the cloth simulation filter (CloudCompare)
+    
             neighbours: default 30
+            
     OUTPUTS:low_points_knn[neighbours]_[name].las
+    
     EXPLANATION: For each point, neighbours are taken into consideration and only the lowest point remains. Duplicates are removed.
         
+        
 3) Calculate normals in CloudCompare, can be done via python
+
     INPUTS: low_points_knn[neighbours]_[name].las
+    
     SETTINGS: local surface model: Quadric; radius: default 0.75 m; Orientation: Use mininum Spanning tree - knn = 6
+    
     convert to DIP DIRECTION/DIP DEGREE. 
+    
     OUTPUTS: Save as GF_[name].txt  
-    EXPLANATION: https://www.cloudcompare.org/doc/wiki/index.php?title=Normals%5CConvert_to_Dip_and_Dip_direction_SFs
-                                                   
-4) python: filter based on dip direction/dip degree
-    INPUTS:  GF_low_points_knn[neighbours]_[name].txt  
-            th_dip_degree: default (7,87) (degrees)
-            th_NN: default 50 
-            th_clust: default 30
-            th_distance: default .75 m 
-            th_RMSE: default 1
-            extra_info: default False
-    OUTPUTS: csf_to_calculate_normals.txt
-            extra_info: see mounddetection1 - function optimize_center 
-    EXPLANATION: 1. points are filtered: all points between th_dip_degree remain
-                2. only points that have > th_NN points within 2 meter remain
-                3. Data is clustered using agglomerative clustering (distance thershold = th_clust)
-                4. Cluster is checked if it has a conical shape: center is optimized based on dip direction. 
-                If optimized center point is > th_distance from mean (x,y), or RMSE of the optimalisation
-                > th_RMSE, cluster is discarded.
-            
-5)  Calculate normals in CloudCompare, can be done via python
-    INPUTS: csf_to_calculate_normals.txt
-    SETTINGS: local surface model: Quadric; radius: default 0.30 m; Orientation: Use mininum Spanning tree - knn = 6
-    convert to DIP DIRECTION/DIP DEGREE.    
-    OUTPUTS: Save as GF_csf_to_calculate_normals.txt
+    
     EXPLANATION: https://www.cloudcompare.org/doc/wiki/index.php?title=Normals%5CConvert_to_Dip_and_Dip_direction_SFs
     
+                                                   
+4) python: filter based on dip direction/dip degree
+
+    INPUTS:  GF_low_points_knn[neighbours]_[name].txt 
+    
+            th_dip_degree: default (7,87) (degrees)
+            
+            th_NN: default 50 
+            
+            th_clust: default 30
+            
+            th_distance: default .75 m 
+            
+            th_RMSE: default 1
+            
+            extra_info: default False
+            
+    OUTPUTS: csf_to_calculate_normals.txt
+    
+            extra_info: see mounddetection1 - function optimize_center
+            
+    EXPLANATION: 1. points are filtered: all points between th_dip_degree remain
+    
+                2. only points that have > th_NN points within 2 meter remain
+                
+                3. Data is clustered using agglomerative clustering (distance thershold = th_clust)
+                
+                4. Cluster is checked if it has a conical shape: center is optimized based on dip direction. 
+                
+                If optimized center point is > th_distance from mean (x,y), or RMSE of the optimalisation > th_RMSE, cluster is discarded.
+            
+5)  Calculate normals in CloudCompare, can be done via python
+
+    INPUTS: csf_to_calculate_normals.txt
+    
+    SETTINGS: local surface model: Quadric; radius: default 0.30 m; Orientation: Use mininum Spanning tree - knn = 6
+    
+    convert to DIP DIRECTION/DIP DEGREE.    
+    
+    OUTPUTS: Save as GF_csf_to_calculate_normals.txt
+    
+    EXPLANATION: https://www.cloudcompare.org/doc/wiki/index.php?title=Normals%5CConvert_to_Dip_and_Dip_direction_SFs
+    
+    
 6) python: extra filter based on dip degree. 
+
     INPUTS: GF_csf_to_calculate_normals.txt
+    
             th1: default 77 (%)
+            
             th2: default 77 (degrees)
+            
             n: default 0.15 (m)
+            
     OUTPUTS: termite_mounds.txt: labelled termite mounds
+    
              termite_mounds.png: map of the termite mounds
-    EXPLANATION: all cluster of which > th1 % of points (above n m ground surface) have a 
-            dip degree > th2° are discarded.
+             
+    EXPLANATION: all cluster of which > th1 % of points (above n m ground surface) have a dip degree > th2° are discarded.
+            
                                                                        
 Extra information
 
