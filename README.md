@@ -11,7 +11,16 @@ STEPS:
 
 1) Load data into CloudCompare; use 'Cloth Simulation Filter' 
 
-    SETTINGS: filter Scene: Steep slope, cloth resolution: 1.0, max. iterations: 500, classification threshold: 1.
+    SETTINGS:
+    
+            filter Scene: Steep slope
+            
+            cloth resolution: 1.0
+            
+            max. iterations: 500
+            
+            classification threshold: 1.
+            
     
     OUTPUTS: Save as [name].las
     
@@ -22,33 +31,33 @@ STEPS:
     
 2) python: keep lowest points.
 
-    INPUTS: input_file_CSF: filtered point cloud in .las format (result of the cloth simulation filter (CloudCompare)
+    INPUT: input_file_CSF: filtered point cloud in .las format (result of the cloth simulation filter (CloudCompare)
     
     PARAMETERS:
     
             neighbours: default 30
             
-    OUTPUTS:low_points_knn[neighbours]_[name].las
+    OUTPUT:low_points_knn[neighbours]_[name].las
     
     EXPLANATION: For each point, neighbours are taken into consideration and only the lowest point remains. Duplicates are removed.
         
         
 3) Calculate normals in CloudCompare, can be done via python
 
-    INPUTS: low_points_knn[neighbours]_[name].las
+    INPUT: low_points_knn[neighbours]_[name].las
     
     SETTINGS: local surface model: Quadric; radius: default 0.75 m; Orientation: Use mininum Spanning tree - knn = 6
     
     convert to DIP DIRECTION/DIP DEGREE. 
     
-    OUTPUTS: Save as GF_[name].txt  
+    OUTPUT: Save as GF_[name].txt  
     
     EXPLANATION: https://www.cloudcompare.org/doc/wiki/index.php?title=Normals%5CConvert_to_Dip_and_Dip_direction_SFs
     
                                                    
 4) python: filter based on dip direction/dip degree
 
-    INPUTS:  GF_low_points_knn[neighbours]_[name].txt 
+    INPUT:  GF_low_points_knn[neighbours]_[name].txt 
     
     PARAMETERS:
     
@@ -64,7 +73,7 @@ STEPS:
             
             extra_info: default False
             
-    OUTPUTS: csf_to_calculate_normals.txt
+    OUTPUT: csf_to_calculate_normals.txt
     
             
     EXPLANATION: 
@@ -81,20 +90,20 @@ STEPS:
             
 5)  Calculate normals in CloudCompare, can be done via python
 
-    INPUTS: csf_to_calculate_normals.txt
+    INPUT: csf_to_calculate_normals.txt
     
     SETTINGS: local surface model: Quadric; radius: default 0.30 m; Orientation: Use mininum Spanning tree - knn = 6
     
     convert to DIP DIRECTION/DIP DEGREE.    
     
-    OUTPUTS: Save as GF_csf_to_calculate_normals.txt
+    OUTPUT: Save as GF_csf_to_calculate_normals.txt
     
     EXPLANATION: https://www.cloudcompare.org/doc/wiki/index.php?title=Normals%5CConvert_to_Dip_and_Dip_direction_SFs
     
     
 6) python: extra filter based on dip degree. 
 
-    INPUTS: GF_csf_to_calculate_normals.txt
+    INPUT: GF_csf_to_calculate_normals.txt
     
     PARAMETERS:
     
@@ -104,7 +113,7 @@ STEPS:
             
             n: default 0.15 (m)
             
-    OUTPUTS: 
+    OUTPUT: 
     
              termite_mounds.txt: labelled termite mounds
     
