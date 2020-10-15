@@ -8,10 +8,15 @@ PACKAGES NEED TO BE INSTALLED:
    os, numpy, pandas, sklearn, matplotlib, laspy, copy, time
 
 STEPS:
+
 1) Load data into CloudCompare; use 'Cloth Simulation Filter' 
+
     SETTINGS: filter Scene: Steep slope, cloth resolution: 1.0, max. iterations: 500, classification threshold: 1.
+    
     OUTPUTS: Save as [name].las
+    
     EXPLANATION: ground filtering algorithm, should comprise the complete termite mounds. Under story can be included.
+    
     https://www.cloudcompare.org/doc/wiki/index.php?title=CSF_(plugin)
     
 2) python: keep lowest points.
