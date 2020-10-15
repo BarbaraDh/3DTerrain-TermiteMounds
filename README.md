@@ -24,6 +24,8 @@ STEPS:
 
     INPUTS: input_file_CSF: filtered point cloud in .las format (result of the cloth simulation filter (CloudCompare)
     
+    PARAMETERS:
+    
             neighbours: default 30
             
     OUTPUTS:low_points_knn[neighbours]_[name].las
@@ -48,6 +50,8 @@ STEPS:
 
     INPUTS:  GF_low_points_knn[neighbours]_[name].txt 
     
+    PARAMETERS:
+    
             th_dip_degree: default (7,87) (degrees)
             
             th_NN: default 50 
@@ -62,9 +66,10 @@ STEPS:
             
     OUTPUTS: csf_to_calculate_normals.txt
     
-            extra_info: see mounddetection1 - function optimize_center
             
-    EXPLANATION: 1. points are filtered: all points between th_dip_degree remain
+    EXPLANATION: 
+    
+                1. points are filtered: all points between th_dip_degree remain
     
                 2. only points that have > th_NN points within 2 meter remain
                 
@@ -91,13 +96,17 @@ STEPS:
 
     INPUTS: GF_csf_to_calculate_normals.txt
     
+    PARAMETERS:
+    
             th1: default 77 (%)
             
             th2: default 77 (degrees)
             
             n: default 0.15 (m)
             
-    OUTPUTS: termite_mounds.txt: labelled termite mounds
+    OUTPUTS: 
+    
+             termite_mounds.txt: labelled termite mounds
     
              termite_mounds.png: map of the termite mounds
              
@@ -109,11 +118,18 @@ Extra information
 step 2: file 'keep_bottom_points'. Based on the X Y values, the nearest neighbours (default: 30) are identified for each point. Only the point with the lowest Z value is kept.
 
 step 4: file 'mounddetection1'. 
+
     1) data is filtered based on dip degree (default 7-86 degrees)
+    
     2) data is filtered: points with less than (default) 50 points within a 2 m radius are discarded
+    
     3) data is clustered using agglomerative clustering
+    
     4) extra points are added to each cluster, from the 'low_points' filtered data
+    
     5) Based on the dip direction, certain clusters are discarded. Creates a file 'resultsoptimizingcenter.csv' which lists the RMSE before and optimizing the termite mound center, and the distance between the initial center and optimized. Creates a folder 'plots' in which the optimized center is visualised. Creates a file 'temporaryresultsmounds.txt'. 
+    
     6) extra points are added to each cluster, coming from the 'CSF' data
 
 step 6: file 'mounddetection2'. Clusters are filtered based on dip degree. All clusters that have > 77 % amount of points (above 15 cm ground surface) that are steeper than 77◦ are discarded (default).
+
