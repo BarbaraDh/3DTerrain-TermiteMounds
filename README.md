@@ -39,7 +39,7 @@ STEPS:
             
     OUTPUT:low_points_knn[neighbours]_[name].las
     
-    EXPLANATION: For each point, neighbours are taken into consideration and only the lowest point remains. Duplicates are removed.
+    EXPLANATION: file 'keep_bottom_points'. Based on the X Y values, the nearest neighbours (default: 30) are identified for each point. Only the point with the lowest Z value is kept. Duplicates are removed.
         
         
 3) Calculate normals in CloudCompare, can be done via python
@@ -76,17 +76,21 @@ STEPS:
     OUTPUT: csf_to_calculate_normals.txt
     
             
-    EXPLANATION: 
+    EXPLANATION: file 'mounddetection1': 
     
-                1. points are filtered: all points between th_dip_degree remain
+                1. data is filtered based on dip degree: all points between th_dip_degree remain
     
-                2. only points that have > th_NN points within 2 meter remain
+                2. data is filtered: points with less than th_NN points within a 2 m radius are discarded
                 
                 3. Data is clustered using agglomerative clustering (distance thershold = th_clust)
                 
-                4. Cluster is checked if it has a conical shape: center is optimized based on dip direction. 
+                4. extra points are added to each cluster, from the 'low_points' filtered data
                 
-                If optimized center point is > th_distance from mean (x,y), or RMSE of the optimalisation > th_RMSE, cluster is discarded.
+                5. Cluster is checked if it has a conical shape: center is optimized based on dip direction. If optimized center point is > th_distance from mean (x,y), or RMSE of the optimalisation > th_RMSE, cluster is discarded.
+                Creates a file 'resultsoptimizingcenter.csv' which lists the RMSE before and optimizing the termite mound center, and the distance between the initial center and optimized. Creates a folder 'plots' in which the optimized center is visualised. Creates a file 'temporaryresultsmounds.txt'. 
+                
+                6. extra points are added to each cluster, coming from the 'CSF' data
+ 
             
 5)  Calculate normals in CloudCompare, can be done via python
 
@@ -119,26 +123,6 @@ STEPS:
     
              termite_mounds.png: map of the termite mounds
              
-    EXPLANATION: all cluster of which > th1 % of points (above n m ground surface) have a dip degree > th2° are discarded.
+    EXPLANATION: file 'mounddetection2'. all cluster of which > th1 % of points (above n m ground surface) have a dip degree > th2° are discarded.
             
                                                                        
-Extra information
-
-step 2: file 'keep_bottom_points'. Based on the X Y values, the nearest neighbours (default: 30) are identified for each point. Only the point with the lowest Z value is kept.
-
-step 4: file 'mounddetection1'. 
-
-    1) data is filtered based on dip degree (default 7-86 degrees)
-    
-    2) data is filtered: points with less than (default) 50 points within a 2 m radius are discarded
-    
-    3) data is clustered using agglomerative clustering
-    
-    4) extra points are added to each cluster, from the 'low_points' filtered data
-    
-    5) Based on the dip direction, certain clusters are discarded. Creates a file 'resultsoptimizingcenter.csv' which lists the RMSE before and optimizing the termite mound center, and the distance between the initial center and optimized. Creates a folder 'plots' in which the optimized center is visualised. Creates a file 'temporaryresultsmounds.txt'. 
-    
-    6) extra points are added to each cluster, coming from the 'CSF' data
-
-step 6: file 'mounddetection2'. Clusters are filtered based on dip degree. All clusters that have > 77 % amount of points (above 15 cm ground surface) that are steeper than 77◦ are discarded (default).
-
