@@ -13,13 +13,13 @@ import time
 import laspy
 
 
-def clustering(filtered):
+def clustering(filtered, th_clust):
     """
-    Clusters data using Agglomerative Clustering. Distance Threshold: 30
+    Clusters data using Agglomerative Clustering. Distance Threshold: 30 default
 
     """
     from sklearn.cluster import AgglomerativeClustering as AC
-    agC = AC(n_clusters=None, distance_threshold=30, memory=None)
+    agC = AC(n_clusters=None, distance_threshold=th_clust, memory=None)
     X = np.array(filtered.iloc[:, :3])
     agC.fit(X)
     labels = np.array([agC.labels_]).T
@@ -29,9 +29,9 @@ def clustering(filtered):
     return labels, amountclusters
 
 
-def filter_density(hills):
+def filter_density(hills, th_NN):
     """
-    If less than 50 points within a radius of 2m, the point is discarded.
+    If less than th_NN (default: 50) points within a radius of 2m, the point is discarded.
 
     """
     idx_filtered = []
@@ -105,7 +105,7 @@ def overview_clusters(filtered, output_dir):
     plt.grid()
     plt.savefig( output_dir  +  '/all_clusters.png', dpi = 800)
     
-def optimize_center(filtered, output_dir):
+def optimize_center(filtered, output_dir, th_distance, th_RMSE, extra_info):
     """
     filters mounds based on dip degree and dip direction.
     
@@ -178,8 +178,7 @@ def optimize_center(filtered, output_dir):
             cluster.loc[:,'based_on_mean'] =  angle_between(x0,y0)
             cols = cluster.loc[:,'Dip direction (rad)']
             levels = np.arange(0, .1, max(cols))
-            plot = True
-            if plot == True:
+            if extra_info == True:
                 output_dir_plots = output_dir + '/plots/plot' + str(i) + '.png' 
                 if not os.path.exists(output_dir + '/plots'):
                     os.makedirs(output_dir + '/plots')
@@ -209,7 +208,7 @@ def optimize_center(filtered, output_dir):
             overview.loc[i,'Distance'] = distance
             overview.loc[i,'id'] = i
             filtered.loc[filtered['label'] == i, 'RMSE'] = RMSE_opt
-            filtered.loc[filtered['label'] == i, 'mound'] = (distance <.75 ) & (RMSE_opt < 1)   #EN punten in de midden!!
+            filtered.loc[filtered['label'] == i, 'mound'] = (distance < th_distance ) & (RMSE_opt < th_RMSE)   
             filtered.loc[filtered['label'] == i, 'x0'] = x0
             filtered.loc[filtered['label'] == i, 'y0'] = y0
             
@@ -222,8 +221,9 @@ def optimize_center(filtered, output_dir):
             filtered.loc[filtered['label'] == i, 'mound'] = False
             
     filtered.loc[:, 'mound'] = filtered.loc[:, 'mound'].astype('int')
-    filtered.to_csv(output_dir + '/temporaryresultsmounds.txt', index=False)
-    overview.to_csv(output_dir + '/resultsoptimizingcenter.csv')
+    if extra_info == True:
+        filtered.to_csv(output_dir + '/temporaryresultsmounds.txt', index=False)
+        overview.to_csv(output_dir + '/resultsoptimizingcenter.csv')
     return filtered
     
 def add_csf_points(filtered, input_file_CSF, output_dir):
@@ -258,7 +258,7 @@ def add_csf_points(filtered, input_file_CSF, output_dir):
     dat.to_csv(output_dir + '/csf_to_calculate_normals.txt', index=False, columns = ['//X', 'Y','Z', 'label','csf'])
     
     
-def filter1(input_file_GF, input_file_CSF, output_dir):
+def filter1(input_file_GF, input_file_CSF, output_dir, th_dip_degree, th_NN, th_clust, th_distance, th_RMSE, extra_info):
     """ 
     main function.
     1) data is filtered based on dip degree (7-86 degrees)
@@ -271,13 +271,15 @@ def filter1(input_file_GF, input_file_CSF, output_dir):
     t0 = time.process_time()
     print('start')
     data = pd.read_csv(input_file_GF, delimiter=',')
-    hills = data.loc[(data.loc[:, 'Dip (degrees)'] > 7) & (data.loc[:, 'Dip (degrees)'] < 86), :].copy() #1
-    filtered = filter_density(hills) #2
-    filtered['label'], amountclusters = clustering(filtered) #3
+    th1 = th_dip_degree[0]
+    th2 = th_dip_degree[1]
+    hills = data.loc[(data.loc[:, 'Dip (degrees)'] > th1) & (data.loc[:, 'Dip (degrees)'] < th2), :].copy() #1
+    filtered = filter_density(hills,th_NN) #2
+    filtered['label'], amountclusters = clustering(filtered,th_clust) #3
     
     filtered = add_all_points(filtered, data) #4
     overview_clusters(filtered, output_dir)
-    filtered = optimize_center(filtered,output_dir) #5
+    filtered = optimize_center(filtered,output_dir, th_distance, th_RMSE, extra_info) #5
     add_csf_points(filtered, input_file_CSF,output_dir) #6
     t1 = time.process_time()
     print("Time spent: " + str(t1 - t0) + ' s' )
@@ -288,9 +290,42 @@ if __name__ == "__main__":
     parser.add_argument("input_GF", help = 'lowpoints with dip direction/degrees from CloudCompare (radius: .75)')
     parser.add_argument("input_CSF", help = 'CSF file from cloudcompare')
     parser.add_argument("output_dir", help= 'directory for the results')
+    parser.add_argument("--th_dip_degree", help = 'default: (7,86)')
+    parser.add_argument("--th_NN", help = 'Default: 50')
+    parser.add_argument("--th_clust", help = 'Default: 30')
+    parser.add_argument("--th_distance", help = 'Default: .75')
+    parser.add_argument("--th_RMSE", help = 'Default: 1')
+    parser.add_argument("--extra_info", help = 'NN. Default: False')
     args = parser.parse_args()
     input_file_GF = args.input_GF
     input_file_CSF = args.input_CSF
     output_dir = args.output_dir
-    filter1(input_file_GF, input_file_CSF, output_dir)
+    
+    if args.th_dip_degree:
+        th_dip_degree = int(args.th_dip_degree)
+    else:
+        neighbours = (7,87)
+    if args.th_NN:
+        th_NN = int(args.th_NN)
+    else:
+        th_NN = 50
+    if args.th_clust:
+        th_clust = int(args.th_clust)
+    else:
+        th_clust = 50   
+    if args.th_distance:
+        th_distance = int(args.th_distance)
+    else:
+        th_distance = .75
+    if args.th_RMSE:
+        th_RMSE = int(args.th_RMSE)
+    else:
+        th_RMSE = 1
+    if args.extra_info:
+        extra_info = bool(args.extra_info)
+    else:
+        extra_info = False
+    filter1(input_file_GF, input_file_CSF, output_dir, th_dip_degree, 
+            th_NN,th_clust, th_distance, th_RMSE, extra_info)
         
+    

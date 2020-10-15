@@ -5,9 +5,6 @@ Created on Fri May 29 10:58:51 2020
 @author: bgdhont
 """
 
-#%% DIT IS HEM
-
-
 import os
 import numpy as np
 from sklearn.neighbors import KDTree
